@@ -750,35 +750,48 @@
             }
         }
 
-        /* Smoke animation */
-        .smoke {
+        /* New styles for smoke effect */
+        .cake-container .smoke {
             position: absolute;
-            top: -20px;
+            top: -20px; /* Same position as .fuego */
             left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
-            background: rgba(150, 150, 150, 0.5);
+            margin-left: -10px; /* Adjust to center the smoke */
+            width: 20px;
+            height: 20px;
+            background: rgba(150, 150, 150, 0.5); /* Greyish smoke color */
             border-radius: 50%;
             opacity: 0;
-            z-index: 9;
-            animation: none;
+            transform: translate(-50%, 0);
+            pointer-events: none; /* Ensure it doesn't interfere with clicks */
         }
 
-        .smoke.animate-smoke {
-            animation: smoke-puff 1.5s ease-out forwards;
+        .cake-container .smoke.show-smoke {
+            animation: smoke-puff 2.5s ease-out forwards; /* Animation duration */
         }
 
         @keyframes smoke-puff {
             0% {
-                transform: translateX(-50%) translateY(0) scale(0.5);
+                transform: translate(-50%, 0) scale(0.5);
                 opacity: 0.5;
             }
+            25% {
+                transform: translate(-50%, -10px) scale(0.8);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translate(-50%, -20px) scale(1);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translate(-55%, -30px) scale(1.2); /* Slight left wobble */
+                opacity: 0.2;
+            }
             100% {
-                transform: translateX(-50%) translateY(-50px) scale(1.5);
+                transform: translate(-45%, -40px) scale(1.5); /* Slight right wobble and fade out */
                 opacity: 0;
             }
         }
+
 
         .cake-container #cake-svg {
             display: block;
@@ -1079,10 +1092,284 @@
         #animationCanvas.hidden {
             opacity: 0;
         }
+
+        /* Overlay for the intro animation */
+        #introOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--peach-light); /* Match body background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+            flex-direction: column; /* Added for vertical alignment of envelope and text */
+        }
+
+        #introOverlay.fade-out {
+            opacity: 0;
+            pointer-events: none; /* Disable interactions after fade-out */
+        }
+
+        /* Envelope styles */
+        .envelope-container {
+            position: relative;
+            width: 250px;
+            height: 150px;
+            cursor: pointer;
+            perspective: 1000px;
+            transition: transform 0.5s ease-in-out;
+            margin-bottom: 20px; /* Space between envelope and text */
+        }
+
+        .envelope-container.open {
+            transform: translateY(-50px); /* Lift up when opened */
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--pink-medium);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .envelope-front {
+            z-index: 2;
+        }
+
+        .envelope-back {
+            z-index: 1;
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: var(--pink-dark);
+            border-radius: 0 0 10px 10px;
+            transform-origin: top;
+            transition: transform 0.5s ease-in-out;
+            z-index: 3;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+
+        .envelope-container.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 0; /* Send flap behind when open */
+        }
+
+        .envelope-paper {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background-color: var(--pink-medium);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: var(--text-accent);
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* New styles for the animated "Klik Here" text */
+        .animated-click-btn {
+            background-color: var(--text-accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem; /* Reduced padding */
+            font-weight: 700;
+            font-size: 1rem; /* Reduced font size */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+            position: absolute; /* Position relative to introOverlay */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 60px); /* Initial position: 60px down from center */
+            opacity: 0; /* Initially hidden */
+            pointer-events: none; /* Disable clicks until visible */
+            z-index: 5; /* Higher than .envelope-front (z-index: 2) and .envelope-flap (z-index: 3) */
+            font-family: 'Dancing Script', cursive; /* Apply font */
+        }
+
+        .animated-click-btn.show {
+            opacity: 1;
+            transform: translate(-50%, -80px); /* Adjusted animation target to be higher, relative to envelope */
+            pointer-events: auto; /* Enable clicks */
+        }
+
+        .animated-click-btn:hover {
+            background-color: var(--pink-dark);
+            transform: translate(-50%, -80px) scale(1.05); /* Adjusted hover target */
+        }
+
+        /* Responsive adjustments for envelope */
+        @media (max-width: 768px) {
+            .envelope-container {
+                width: 200px;
+                height: 120px;
+            }
+            .envelope-paper {
+                font-size: 2rem;
+            }
+            .animated-click-btn {
+                font-size: 0.9rem; /* Further reduced for smaller screens */
+                padding: 0.5rem 1rem; /* Further reduced padding */
+                transform: translate(-50%, -70px); /* Adjusted animation target */
+            }
+            .animated-click-btn:hover {
+                transform: translate(-50%, -70px) scale(1.05);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .envelope-container {
+                width: 180px;
+                height: 100px;
+            }
+            .envelope-paper {
+                font-size: 1.8rem;
+            }
+            .animated-click-btn {
+                font-size: 0.8rem; /* Even smaller for very small screens */
+                padding: 0.4rem 0.8rem; /* Even smaller padding */
+                transform: translate(-50%, -60px); /* Adjusted animation target */
+            }
+            .animated-click-btn:hover {
+                transform: translate(-50%, -60px) scale(1.05);
+            }
+        }
+
+        /* New styles for the love slider */
+        .love-slider-container {
+            width: 80%;
+            margin: 1.5rem auto 0.5rem auto;
+            text-align: center;
+        }
+
+        .love-slider-container p {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .love-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, var(--pink-light), var(--pink-dark));
+            border-radius: 5px;
+            outline: none;
+            transition: opacity .2s;
+            cursor: pointer;
+        }
+
+        .love-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: var(--text-accent);
+            border-radius: 50%;
+            cursor: grab;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .love-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .love-slider::-webkit-slider-thumb::before {
+            content: '❤️'; /* Heart emoji */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2em; /* Adjust size as needed */
+            color: white; /* Color of the heart */
+            line-height: 1; /* Ensure vertical alignment */
+        }
+
+        .love-slider::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: var(--text-accent);
+            border-radius: 50%;
+            cursor: grab;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .love-slider::-moz-range-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        /* For Firefox, you might need to use pseudo-elements for the emoji, but it's less straightforward */
+        /* .love-slider::-moz-range-thumb::before { content: '❤️'; } */
+
+        .love-percentage-display {
+            font-weight: bold;
+            color: var(--text-accent);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        /* Adjustments for smaller screens for the slider */
+        @media (max-width: 480px) {
+            .love-slider-container {
+                width: 90%;
+            }
+            .love-slider::-webkit-slider-thumb,
+            .love-slider::-moz-range-thumb {
+                width: 25px;
+                height: 25px;
+            }
+            .love-slider::-webkit-slider-thumb::before {
+                font-size: 1em;
+            }
+            .love-percentage-display {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Intro Overlay -->
+    <div id="introOverlay">
+        <div class="envelope-container" id="envelopeContainer">
+            <div class="envelope envelope-back"></div>
+            <div class="envelope-flap"></div>
+            <div class="envelope-paper" id="envelopePaper">
+                <!-- The paper inside the envelope, now empty of "Klik Here" text -->
+            </div>
+        </div>
+        <!-- Moved "Klik Here" text outside the envelope container again, relative to introOverlay -->
+        <button class="animated-click-btn" id="animatedClickHere">Klik lagi sayang</button>
+    </div>
+
     <!-- Canvas for animations -->
     <canvas id="animationCanvas"></canvas>
 
@@ -1112,9 +1399,9 @@
             <button id="toggleMessageBtn" class="toggle-message-btn">Lihat Ucapan <i class="fas fa-gift"></i></button>
             <div id="birthdayMessageContent" class="message-text" aria-hidden="true">
                 <h3>Happy Birthday Kakak</h3>
-                <p>"Lorem ipsum, dolor sit amet consectetur adipisicing elit. In eius velit rerum veniam quas quasi, quidem officiis quia, magni recusandae possimus aut reiciendis dolor est consequatur facere, praesentium nulla aliquid."</p>
-                <p>"Lorem ipsum, dolor sit amet consectetur adipisicing elit. In eius velit rerum veniam quas quasi, quidem officiis quia, magni recusandae possimus aut reiciendis dolor est consequatur facere, praesentium nulla aliquid."</p>
-                <p>"Lorem ipsum, dolor sit amet consectetur adipisicing elit. In eius velit rerum veniam quas quasi, quidem officiis quia, magni recusandae possimus aut reiciendis dolor est consequatur facere, praesentium nulla aliquid."</p>
+                <p>" Lorem, ipsum dolor sit amet consectetur adipisicing elit. Blanditiis consequuntur, necessitatibus itaque molestiae sit sunt velit non, totam dolore quod libero vel labore ipsum asperiores laudantium veniam quisquam eum rem. "</p>
+                <p>" Lorem, ipsum dolor sit amet consectetur adipisicing elit. Blanditiis consequuntur, necessitatibus itaque molestiae sit sunt velit non, totam dolore quod libero vel labore ipsum asperiores laudantium veniam quisquam eum rem. "</p>
+                <p>" Lorem, ipsum dolor sit amet consectetur adipisicing elit. Blanditiis consequuntur, necessitatibus itaque molestiae sit sunt velit non, totam dolore quod libero vel labore ipsum asperiores laudantium veniam quisquam eum rem. "</p>
             </div>
             <div class="message-images" aria-hidden="true">
                 <!-- Updated alt text for clarity -->
@@ -1133,15 +1420,11 @@
                     <div class="fuego"></div>
                     <div class="fuego"></div>
                     <div class="fuego"></div>
+                    <!-- Smoke element for each candle -->
+                    <div class="smoke"></div>
                 </div>
-                <!-- Smoke elements, one for each candle -->
-                <div class="smoke" id="smoke1"></div>
-                <div class="smoke" id="smoke2"></div>
-                <div class="smoke" id="smoke3"></div>
-                <div class="smoke" id="smoke4"></div>
-                <div class="smoke" id="smoke5"></div>
 
-                <svg id="cake-svg" version="1.1" x="0px" y="0px" width="200px" height="500px" viewBox="0 0 200 500"
+                <svg id="cake-svg" version="1.1" x="0px" y="0px" width="300px" height="500px" viewBox="0 0 200 500"
                     enable-background="new 0 0 200 500" xml:space="preserve" aria-hidden="true">
                     <path fill="#a88679" d="M173.667-13.94c-49.298,0-102.782,0-147.334,0c-3.999,0-4-16.002,0-16.002
                     c44.697,0,96.586,0,147.334,0C177.667-29.942,177.668-13.94,173.667-13.94z">
@@ -1164,7 +1447,7 @@
                         <animate id="relleno_2" attributeName="d" calcMode="spline" keySplines="0 0 1 1; 0 0 1 1; 0 0 0.58 1"
                             begin="indefinite" dur="0.5s" fill="freeze" values="
                                       M100-178.521c1.858,0,3.364,1.506,3.364,3.363c0,0,0,33.17,0,44.227
-                    c0,19.144,0,57.431,0,76.574c0,10.152,0,40.607,0,40.607c0,1.858-1.506,3.364-3.364,3.364l0,0c-1.858,0-3.364-1.506-3.364-3.364c0,0,0-30.455,0-40.607c0-19.145,0-57.432,0-76.575c0-11.057,0-44.226,0-44.226C96.636-177.015,98.142-178.521,100-178.521
+                    c0,19.144,0,57.431,0,76.574c0,10.152,0,40.607,0,40.607c0,1.858-1.506,3.364-3.364,3.364l0,0c-1.858,0-3.364-1.506-3.364-3.364c0,0,0-30.455,0-40.607c0-19.145,0-57.432,0-76.576c0-11.057,0-44.225,0-44.225C96.636,268.763,98.142,267.257,100,267.257
                     L100,267.257z
                                       ;
                                       M100,267.257c1.858,0,3.364,1.506,3.364,3.363c0,0,0,33.17,0,44.227
@@ -1221,8 +1504,84 @@
                     c-4.109,0.65-3.01-10.006,0-10.006C37.129,451.394,149.379,451.394,173.667,451.394z
                                       " />
                     </path>
+                            <path fill="#a88679" d="M173.667,21.571c-33.174,0-111.467,0-147.334,0c-4,0-4-16.002,0-16.002c39.836,0,105.982,0,147.334,0
+		C177.668,5.569,177.667,21.571,173.667,21.571z">
+            <animate id="bizcocho_1" attributeName="d" calcMode="spline"
+                keySplines="0 0 1 1; 0 0 1 1; 0 0 1 1; 0.25 0 1 1; 0 0 1 1; 0.25 0 0.6 1" begin="indefinite" dur="0.8s"
+                fill="freeze" values="
+                          M173.667,21.571c-33.174,0-111.467,0-147.334,0c-4,0-4-16.002,0-16.002c39.836,0,105.982,0,147.334,0
+		C177.668,5.569,177.667,21.571,173.667,21.571z
+                          ;
+                          M173.667,459.569c-33.197,16.002-110.782,16.002-147.334,0c-3.664-1.604,1.614-15.617,5.337-14.153
+		c40.702,16.002,94.289,16.104,136.505,0.103C171.917,444.1,177.271,457.832,173.667,459.569z
+                          ;
+                          M171.817,475.571c-39.361-3.001-105.438-2.571-143.556,0c-3.991,0.27-7.377-14.736-3.387-15.014
+		c41.553-2.888,104.421-3.121,150.51-0.233C179.378,460.574,175.806,475.875,171.817,475.571z
+                          ;
+                          M171.817,459.564c-38.8-12.188-104.504-13.762-143.556,0c-3.772,1.329-7.961-12.604-4.178-13.905
+		c40.864-14.064,105.114-15.52,151.918-0.973C179.822,445.874,175.634,460.762,171.817,459.564z
+                          ;
+                          M173.667,475.571c-46.376-5.005-105.924-4.003-147.334,0c-3.981,0.385-3.479-15.421,0.479-16.002
+		c43.087-6.327,97.705-7.083,146.855,0.438C177.621,460.613,177.644,476,173.667,475.571z
+                          ;
+                          M173.667,474.117c-46.376,1.866-105.638,2.01-147.334,0c-3.995-0.192-3.52-16.144,0.479-16.002
+		c43.794,1.55,96.341,1.541,145.723,0C176.532,457.99,177.663,473.956,173.667,474.117z
+                          ;
+                          M173.667,475.571c-46.512,0-105.486,0-147.334,0c-3.999,0-4-16.002,0-16.002c43.566,0,97.96,0,147.334,0
+		C177.667,459.569,177.666,475.571,173.667,475.571z
+                          " />
+        </path>
+                    <path fill="#fefae9" d="M104.812,113.216c0,3.119-2.164,5.67-4.812,5.67c-2.646,0-4.812-2.551-4.812-5.67c0-5.594,0-16.782,0-22.375
+	c0-5.143,0-15.427,0-20.568c0-7.333,0-21.998,0-29.33c0-5.523,0-16.569,0-22.092c0-3.295,0-9.885,0-13.181
+	C95.188,2.551,97.353,0,100,0c2.648,0,4.812,2.551,4.812,5.669c0,3.248,0,9.743,0,12.991c0,5.428,0,16.284,0,21.711
+	c0,7.618,0,22.854,0,30.472c0,4.952,0,14.854,0,19.807C104.812,96.292,104.812,107.576,104.812,113.216z">
+            <animate id="crema" attributeName="d" calcMode="spline"
+                keySplines="0 0 1 1; 0 0 1 1; 0 0 1 1; 0.25 0 1 1; 0 0 1 1; 0 0 0.58 1" begin="bizcocho_3.end" dur="2s"
+                fill="freeze" values="
+                          M104.812,113.216c0,3.119-2.164,5.67-4.812,5.67c-2.646,0-4.812-2.551-4.812-5.67c0-5.594,0-16.782,0-22.375
+	c0-5.143,0-15.427,0-20.568c0-7.333,0-21.998,0-29.33c0-5.523,0-16.569,0-22.092c0-3.295,0-9.885,0-13.181
+	C95.188,2.551,97.353,0,100,0c2.648,0,4.812,2.551,4.812,5.669c0,3.248,0,9.743,0,12.991c0,5.428,0,16.284,0,21.711
+	c0,7.618,0,22.854,0,30.472c0,4.952,0,14.854,0,19.807C104.812,96.292,104.812,107.576,104.812,113.216z
+                          ;
+                          M104.812,405.897c0,3.119-2.164,5.67-4.812,5.67c-2.646,0-4.812-2.551-4.812-5.67c0-5.594,0-16.782,0-22.376
+	c0-5.143,0-15.426,0-20.568c0-7.332,0-21.997,0-29.33c0-5.522,0-16.568,0-22.092c0-3.295,0-9.885,0-13.181
+	c0-3.118,2.165-5.669,4.812-5.669c2.648,0,4.812,2.551,4.812,5.669c0,3.247,0,9.743,0,12.991c0,5.428,0,16.283,0,21.711
+	c0,7.618,0,22.854,0,30.473c0,4.951,0,14.854,0,19.807C104.812,388.972,104.812,400.256,104.812,405.897z
+                          ;
+                          M111.873,411.567c-3.119,0-9.226,0-11.874,0c-2.646,0-7.748,0-10.867,0c-7.086,0-12.698,0-18.292,0
+	c-6.592,0-12.871,7.371-19.166,3.008c-10.043-6.961-7.776-10.169,2.991-17.745c12.61-8.873,27.713,1.994,25.919-7.531
+	c-2.589-13.742,11.008-14.513,11.365-17.789c0.441-4.051,4.235-11.107,8.051-8.175c3.113,2.393,1.007,8.008,0,13.159
+	c-1.871,9.569,8.058,2.113,9.494,14.155c2.592,21.732,21.184-0.675,29.309,7.976c5.216,5.553,18.413,5.552,15.426,12.942
+	c-3.131,7.745-15.825-4.369-23.8,2.903C126.261,418.271,118.301,411.567,111.873,411.567z
+                          ;
+                          M111.873,411.567c-3.119,0-9.226,0-11.874,0c-2.646,0-9.734,4.069-12.853,4.069
+	c-7.086,0-10.712-4.069-16.306-4.069c-6.592,0-12.12,6.013-19.166,3.008c-7.053-3.008-7.458,2.026-18.659,1.165
+	c-6.832-0.525-7.522-3.034-7.533-6.265c-0.037-10.336,22.073-2.452,36.613-2.628c10.234-0.124,19.856-1.439,37.905-2.102
+	c16.642-0.61,32.699,1.552,46.009,1.927c12.438,0.351,29.663-8.99,31.532,3.315c0.773,5.093-5.605,3.342-11.211,9.579
+	c-5.093,5.667-7.59-4.605-12.965-3.832c-8.269,1.189-14.962-8.537-22.937-1.265C126.261,418.271,118.301,411.567,111.873,411.567z
+                          ;
+                          M110.946,413.652c-2.904-1.137-8.405-2.748-12.446-0.97c-6.099,2.685-7.273,10.358-13.253,8.242
+	c-7.843-2.775-8.953-5.008-14.546-5.01c-24.653-0.011-4.849,26.507-18.264,26.507c-12.377,0,5.791-33.537-19.422-26.682
+	c-7.703,2.095-9.806-0.942-9.817-4.173c-0.037-10.336,24.357-4.544,38.897-4.72c10.234-0.124,19.856-1.439,37.905-2.102
+	c16.642-0.61,32.699,1.552,46.009,1.927c12.438,0.351,28.973-8.865,31.532,3.315c1.449,6.896,0.318,15.624-3.874,15.624
+	c-7.619,0-1.788-15.192-19.243-7.111c-7.581,3.51-15.963-9.738-26.669,1.066C120.644,426.744,118.381,416.561,110.946,413.652z
+                          ;
+                          M111.547,413.9c-2.969-0.956-8.775-0.949-13.167-0.5c-14.667,1.5-8.325,16.508-14.667,16.666
+	c-6.667,0.166-0.167-13.5-13.013-14.151c-30.471-1.545-5.572,46.651-18.987,46.651c-12.377,0,10.333-50.166-18.667-44.5
+	c-7.835,1.531-9.537-1.417-9.548-4.647c-0.037-10.336,23.675-5.177,38.215-5.353c10.234-0.124,20.618-1.671,38.667-2.333
+	c16.642-0.61,32.023,1.458,45.333,1.833c12.438,0.351,33.819-8.431,33.199,4.001c-0.532,10.666,0.414,26.166-5.245,25.833
+	c-7.606-0.447-2.954-31.5-19.243-18.899c-7.985,6.177-17.658-5.969-27.377,5.732C118.88,434.066,121.38,417.067,111.547,413.9z
+                          ;
+                          M111.547,415.233c-6.667-0.834-9.667,4.667-13.833,3.333c-19.649-6.291-8.158,22.176-14.5,22.334
+	c-6.667,0.166,2.833-18-13.333-22.167c-29.544-7.615-9.667,43.833-20.167,43.833c-10.333,0,8.004-55.006-16.833-39
+	c-7.5,4.833-9.508-3.78-9.299-7.004c0.799-12.329,23.592-7.153,38.132-7.329c10.234-0.124,20.238-1.505,38.287-2.167
+	c16.642-0.61,32.903,1.125,46.213,1.5c12.438,0.351,35.058-5.579,31.863,6.451c-5.532,20.833,1.25,28.216-4.409,27.883
+	c-7.606-0.447-6.058-37.895-20.62-23.333c-10.167,10.166-15.972-0.747-25,12C119.547,443.568,121.798,416.515,111.547,415.233z
+                          " />
+                    </path>
                     <rect x="10" y="475.571" fill="#fefae9" width="180" height="4" />
                 </svg>
+                
                 <div class="cake-text">
                     <h1>happy birthday!</h1>
                 </div>
@@ -1287,7 +1646,7 @@
 
                 <p style="font-size: 0.9em; color: var(--text-dark); margin-top: 1rem; text-align: center;">
                     <span style="font-weight: bold;">Do you think I have forgotten?.</span><br>
-Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang ia cintai, baik itu perasaan atau kenangan yang pernah dialami bersama.</p>
+Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan yang ia cintai, baik itu perasaan atau kenangan yang pernah dialami bersama.</p>
                 <figure>
                     <img src="IMG-20250824-WA0067.jpg" alt="Pasangan muda berpegangan tangan sambil tersenyum di taman dengan latar belakang pepohonan hijau yang cerah" loading="lazy"/>
                 </figure>
@@ -1323,24 +1682,38 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
         <section id="kartu-doa" aria-label="Kartu Doa" class="praycards-section">
             <h2 class="section-title">Kartu Doa</h2>
             <div class="praycards-container" role="list">
-                <div class="praycard" role="listitem" tabindex="0">Doa 1<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-heart-broken"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Doa 2<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-heart"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Doa 3<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-heart"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Doa 4<br>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
-                <div class="praycard" role="listitem" tabindex="0">Doa 5<br>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
-                <div class="praycard" role="listitem" tabindex="0">Doa 6<br>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 1<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.<i class="fas fa-heart-broken"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 2<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.<i class="fas fa-heart"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 3<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-heart"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 4<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 5<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</div>
+                <div class="praycard" role="listitem" tabindex="0">Doa 6<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</div>
             </div>
         </section>
         <!-- Kartu Harapan -->
         <section id="kartu-harapan" aria-label="Kartu Harapan" class="praycards-section">
             <h2 class="section-title">Kartu Harapan</h2>
             <div class="praycards-container" role="list">
-                <div class="praycard" role="listitem" tabindex="0">Harapan 1<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-flower"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Harapan 2<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-sparkles"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Harapan 3<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-star"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Harapan 4<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-fist-raised"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Harapan 5<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-sparkles"></i></div>
-                <div class="praycard" role="listitem" tabindex="0">Harapan 6<br>Lorem ipsum dolor sit amet consectetur adipisicing elit. <i class="fas fa-smile"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 1<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-flower"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 2<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-sparkles"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 3<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-star"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 4<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit.<i class="fas fa-fist-raised"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 5<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-sparkles"></i></div>
+                <div class="praycard" role="listitem" tabindex="0">Harapan 6<br>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <i class="fas fa-smile"></i></div>
+            </div>
+        </section>
+
+        <!-- New Effort Section -->
+        <section id="effort-section" class="message-section" aria-label="Tentang usaha pembuatan web ini">
+            <button id="toggleEffortBtn" class="toggle-message-btn">Pesan akhir<i class="fas fa-code"></i></button>
+            <div id="effortContent" class="message-text" aria-hidden="true">
+                <p>" Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque rem esse ex voluptatibus, assumenda quis beatae qui culpa eveniet repellat! Repellendus, eius. Assumenda atque veritatis quae, odio pariatur ab blanditiis! "</p>
+                <!-- Love Slider -->
+                <div class="love-slider-container">
+                    <p>How much do you like this gift?</p>
+                    <input type="range" min="0" max="100" value="0" class="love-slider" id="loveSlider">
+                    <span id="lovePercentageDisplay" class="love-percentage-display">0%</span>
+                </div>
             </div>
         </section>
 
@@ -1359,6 +1732,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                     <textarea id="messageContent" name="messageContent" required minlength="10" maxlength="500" placeholder="Tuliskan pesan di sini..."></textarea>
                     <span id="messageContentError" aria-live="polite"></span>
                 </div>
+                <input type="hidden" name="lovePercentage" id="lovePercentageInput" value="50">
                 <button type="submit" id="sendMessageBtn">Kirim Pesan</button>
                 <p id="messageStatus" aria-live="polite"></p>
             </form>
@@ -1367,6 +1741,31 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
 
     <script>
         (() => {
+            // --- Intro Animation Logic ---
+            const introOverlay = document.getElementById('introOverlay');
+            const envelopeContainer = document.getElementById('envelopeContainer');
+            const animatedClickHere = document.getElementById('animatedClickHere'); // Now refers to the button
+
+            // Always show the intro overlay on page load
+            document.body.style.overflow = 'hidden'; // Prevent scrolling during intro
+            introOverlay.style.display = 'flex'; // Ensure overlay is visible
+
+            envelopeContainer.addEventListener('click', () => {
+                envelopeContainer.classList.add('open');
+                // After envelope opens, show the "Klik Here" button with animation
+                setTimeout(() => {
+                    animatedClickHere.classList.add('show');
+                }, 500); // Delay to sync with envelope opening animation (0.5s)
+            });
+
+            animatedClickHere.addEventListener('click', () => {
+                introOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    introOverlay.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+                }, 1000); // Match fade-out duration
+            });
+
             // --- Hamburger Menu Functionality ---
             const hamburger = document.getElementById('hamburgerBtn');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -1406,6 +1805,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
             const messageContentInput = document.getElementById('messageContent');
             const senderNameError = document.getElementById('senderNameError');
             const messageContentError = document.getElementById('messageContentError');
+            const lovePercentageInput = document.getElementById('lovePercentageInput'); // Get the hidden input
 
             // Add fade-in animation on load for the message box
             window.addEventListener('load', () => {
@@ -1501,6 +1901,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
 
                 const senderName = senderNameInput.value;
                 const messageContent = messageContentInput.value;
+                const lovePercentage = lovePercentageInput.value; // Get the love percentage value
 
                 try {
                     const response = await fetch(messageForm.action, {
@@ -1511,7 +1912,8 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                         },
                         body: JSON.stringify({
                             name: senderName,
-                            message: messageContent
+                            message: messageContent,
+                            lovePercentage: lovePercentage // Include love percentage in the payload
                         })
                     });
 
@@ -1522,6 +1924,12 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                         messageForm.reset(); // Clear the form
                         clearError(senderNameError); // Clear any lingering errors
                         clearError(messageContentError);
+                        // Reset love slider to default after successful submission
+                        const loveSlider = document.getElementById('loveSlider');
+                        const lovePercentageDisplay = document.getElementById('lovePercentageDisplay');
+                        loveSlider.value = 50;
+                        lovePercentageDisplay.textContent = '50%';
+                        lovePercentageInput.value = 50;
                     } else {
                         const data = await response.json();
                         let errorMessage = "Gagal mengirim pesan. Silakan coba lagi.";
@@ -1566,7 +1974,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
             const startCakeAnimBtn = document.getElementById('startCakeAnim');
             const velas = document.querySelector('.velas');
             const fuegos = document.querySelectorAll('.fuego');
-            const smokes = document.querySelectorAll('.smoke');
+            const smokeElement = document.querySelector('.smoke'); // Get the smoke element
 
             let loadingInterval;
             let dotCount = 0;
@@ -1598,6 +2006,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
              */
             async function playCakeAnimation() {
                 const animations = [
+                    { element: document.getElementById('bizcocho_1'), duration: 500 },
                     { element: document.getElementById('relleno_1'), duration: 500 },
                     { element: document.getElementById('bizcocho_2'), duration: 500 },
                     { element: document.getElementById('relleno_2'), duration: 500 },
@@ -1619,11 +2028,6 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                     startLoadingAnimation();
                     animationStarted = true;
 
-                    smokes.forEach(smoke => {
-                        smoke.classList.remove('animate-smoke');
-                        smoke.style.opacity = '0';
-                    });
-
                     await playCakeAnimation();
 
                     velas.style.opacity = '1';
@@ -1640,13 +2044,12 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                     });
                     velas.style.opacity = '0';
 
-                    smokes.forEach(smoke => {
-                        smoke.classList.add('animate-smoke');
-                        smoke.style.animation = 'none';
-                        void smoke.offsetWidth;
-                        smoke.style.animation = null;
-                        smoke.classList.add('animate-smoke');
-                    });
+                    // Show smoke effect when fire is turned off
+                    smokeElement.classList.add('show-smoke');
+                    // Remove smoke class after animation duration (2.5s)
+                    setTimeout(() => {
+                        smokeElement.classList.remove('show-smoke');
+                    }, 2500); // Matches the smoke-puff animation duration
 
                     startCakeAnimBtn.textContent = 'Mulai Animasi Kue';
                     animationStarted = false;
@@ -1745,6 +2148,35 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                     toggleMessageBtn.innerHTML = 'Sembunyikan Ucapan <i class="fas fa-star"></i>';
                 }
                 messageVisible = !messageVisible;
+            });
+
+            // --- New Effort Section Toggle Functionality ---
+            const toggleEffortBtn = document.getElementById('toggleEffortBtn');
+            const effortContent = document.getElementById('effortContent');
+            let effortVisible = false;
+
+            toggleEffortBtn.addEventListener('click', () => {
+                if (effortVisible) {
+                    effortContent.classList.remove('show');
+                    effortContent.setAttribute('aria-hidden', 'true');
+                    toggleEffortBtn.innerHTML = 'Pesan akhir<i class="fas fa-code"></i>';
+                } else {
+                    effortContent.classList.add('show');
+                    effortContent.setAttribute('aria-hidden', 'false');
+                    toggleEffortBtn.innerHTML = 'Sembunyikan Pesan akhir <i class="fas fa-code"></i>';
+                }
+                effortVisible = !effortVisible;
+            });
+
+            // --- Love Slider Functionality ---
+            const loveSlider = document.getElementById('loveSlider');
+            const lovePercentageDisplay = document.getElementById('lovePercentageDisplay');
+            // lovePercentageInput is already defined above in Message Box Functionality
+
+            loveSlider.addEventListener('input', () => {
+                const value = loveSlider.value;
+                lovePercentageDisplay.textContent = `${value}%`;
+                lovePercentageInput.value = value; // Update hidden input value
             });
 
             // --- Canvas Animation Script ---
@@ -2044,6 +2476,7 @@ Lagu "About You" memiliki makna seseorang yang tidak pernah melupakan orang yang
                 }, 10000);
             }
 
+            // Start canvas animations immediately when the page loads
             window.addEventListener('load', startAnimations);
 
         })();
