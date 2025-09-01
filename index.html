@@ -1400,6 +1400,7 @@
             <div id="birthdayMessageContent" class="message-text" aria-hidden="true">
                 <h3>Happy Birthday Kakak</h3>
                 <p>"Selamat ulang tahun, kakak ana. Semoga hari ini seindah senyum kak ana dan hari yang paling bahagia dan terbaik buat kak ana, menjadi hari yang penuh kebahagiaan, penuh doa-doa baik, dan membawa banyak hal terbaik dalam hidupmu. Semoga apa pun yang kak ana impikan bisa tercapai satu per satu, dan semoga kak ana selalu diberi kesehatan, panjang umur, serta dilindungi oleh Allah di setiap langkah. maafin aku yg selama ini banyak salah dan selalu ngecewain kak ana."</p>
+            </div>
             <div class="message-images" aria-hidden="true">
                 <!-- Updated alt text for clarity -->
                 <img src="Screenshot_2025-07-17-14-37-18-11_99c04817c0de5652397fc8b56c3b3817.jpg" alt="Ilustrasi kartun pasangan sedang berpelukan dengan latar belakang hati." loading="lazy"/>
@@ -1439,7 +1440,7 @@
                                       " />
                     </path>
                     <path fill="#8b6a60" d="M100-178.521c1.858,0,3.364,1.506,3.364,3.363c0,0,0,33.17,0,44.227
-                    c0,19.144,0,57.431,0,76.574c0,10.152,0,40.607,0,40.607c0,1.858-1.506,3.364-3.364,3.364l0,0c-1.858,0-3.364-1.506-3.364-3.364c0,0,0-30.455,0-40.607c0-19.145,0-57.432,0-76.575c0-11.057,0-44.226,0-44.226C96.636-177.015,98.142-178.521,100-178.521
+                    c0,19.144,0,57.431,0,76.574c0,10.152,0,40.607,0,40.607c0,1.858-1.506,3.364-3.364,3.364l0,0c-1.858,0-3.364-1.506-3.364-3.364c0,0,0-30.455,0-40.607c0-19.145,0-57.432,0-76.576c0-11.057,0-44.225,0-44.225C96.636-177.015,98.142-178.521,100-178.521
                     L100,267.257z">
                         <animate id="relleno_2" attributeName="d" calcMode="spline" keySplines="0 0 1 1; 0 0 1 1; 0 0 0.58 1"
                             begin="indefinite" dur="0.5s" fill="freeze" values="
@@ -1640,7 +1641,6 @@
                     <p data-time="234">Do you think I have forgotten about you?</p>
                 </div>
 
-
                 <figure>
                     <img src="IMG-20250824-WA0067.jpg" alt="Pasangan muda berpegangan tangan sambil tersenyum di taman dengan latar belakang pepohonan hijau yang cerah" loading="lazy"/>
                 </figure>
@@ -1695,6 +1695,7 @@
             </div>
         </section>
 
+
         <!-- New Effort Section -->
         <section id="effort-section" class="message-section" aria-label="Tentang usaha pembuatan web ini">
             <button id="toggleEffortBtn" class="toggle-message-btn">Pesan akhir<i class="fas fa-code"></i></button>
@@ -1737,6 +1738,7 @@
     </main>
 
     <script>
+        
         (() => {
             // --- Intro Animation Logic ---
             const introOverlay = document.getElementById('introOverlay');
@@ -2047,6 +2049,9 @@
                     setTimeout(() => {
                         smokeElement.classList.remove('show-smoke');
                     }, 2500); // Matches the smoke-puff animation duration
+
+                    // Trigger the new particle animation when candles are "blown out"
+                    blowCandle();
 
                     startCakeAnimBtn.textContent = 'Mulai Animasi Kue';
                     animationStarted = false;
@@ -2367,6 +2372,8 @@
             }
 
             let fireworks = [];
+            let activeHearts = []; // New array for hearts from candle blow
+            let activeConfetti = []; // New array for confetti from candle blow
 
             function animate() {
                 animationFrameId = requestAnimationFrame(animate);
@@ -2393,6 +2400,24 @@
                     c.draw();
                     if (c.alpha <= 0.05 || c.y > canvas.height) {
                         confetti.splice(index, 1);
+                    }
+                });
+
+                // Update and draw hearts from candle blow
+                activeHearts.forEach((heart, index) => {
+                    heart.update();
+                    heart.draw();
+                    if (heart.alpha <= 0.05 || heart.y > canvas.height) {
+                        activeHearts.splice(index, 1);
+                    }
+                });
+
+                // Update and draw confetti from candle blow
+                activeConfetti.forEach((c, index) => {
+                    c.update();
+                    c.draw();
+                    if (c.alpha <= 0.05 || c.y > canvas.height) {
+                        activeConfetti.splice(index, 1);
                     }
                 });
             }
@@ -2434,8 +2459,8 @@
 
             let fireworkInterval, heartInterval, confettiInterval;
 
-            function startAnimations() {
-                animate();
+            function startIntroAnimations() {
+                animate(); // Start the animation loop
 
                 for (let i = 0; i < 5; i++) {
                     spawnFirework();
@@ -2466,15 +2491,70 @@
                     setTimeout(() => {
                         canvas.classList.add('hidden');
                         setTimeout(() => {
-                            cancelAnimationFrame(animationFrameId);
-                            canvas.style.display = 'none';
+                            // Only cancel animation frame if no other animations are active
+                            if (fireworks.length === 0 && hearts.length === 0 && confetti.length === 0 && activeHearts.length === 0 && activeConfetti.length === 0) {
+                                cancelAnimationFrame(animationFrameId);
+                                canvas.style.display = 'none';
+                            }
                         }, 1000);
                     }, 1000);
                 }, 10000);
             }
 
             // Start canvas animations immediately when the page loads
-            window.addEventListener('load', startAnimations);
+            window.addEventListener('load', startIntroAnimations);
+
+            // --- New blowCandle function for particle effects ---
+            function blowCandle() {
+                canvas.style.display = 'block'; // Ensure canvas is visible
+                canvas.classList.remove('hidden'); // Ensure canvas is not hidden
+
+                const cakeContainer = document.querySelector('.cake-container');
+                const cakeRect = cakeContainer.getBoundingClientRect();
+
+                // Calculate the center of the cake container relative to the canvas
+                const centerX = cakeRect.left + cakeRect.width / 2;
+                const centerY = cakeRect.top + cakeRect.height / 2;
+
+                // Spawn particles (circles)
+                for (let i = 0; i < 100; i++) {
+                    const angle = random(0, Math.PI * 2);
+                    const speed = random(2, 8);
+                    const velocity = {
+                        x: Math.cos(angle) * speed,
+                        y: Math.sin(angle) * speed
+                    };
+                    activeConfetti.push(new Confetti(centerX, centerY, random(5, 15), colors[Math.floor(random(0, colors.length))], velocity));
+                }
+
+                // Spawn hearts
+                for (let i = 0; i < 50; i++) {
+                    const angle = random(0, Math.PI * 2);
+                    const speed = random(1, 6);
+                    const velocity = {
+                        x: Math.cos(angle) * speed,
+                        y: Math.sin(angle) * speed
+                    };
+                    activeHearts.push(new Heart(centerX, centerY, random(10, 25), colors[Math.floor(random(0, colors.length))], velocity));
+                }
+
+                // Ensure animation loop is running
+                if (!animationFrameId) {
+                    animate();
+                }
+
+                // Fade out the canvas after a duration if no other animations are active
+                setTimeout(() => {
+                    if (fireworks.length === 0 && hearts.length === 0 && confetti.length === 0 && activeHearts.length === 0 && activeConfetti.length === 0) {
+                        canvas.classList.add('hidden');
+                        setTimeout(() => {
+                            canvas.style.display = 'none';
+                            cancelAnimationFrame(animationFrameId);
+                            animationFrameId = null; // Reset animation frame ID
+                        }, 1000); // Matches CSS transition duration
+                    }
+                }, 3000); // Animation duration for the new particles
+            }
 
         })();
     </script>
